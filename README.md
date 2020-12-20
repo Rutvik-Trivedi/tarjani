@@ -28,7 +28,7 @@ In case, the default NER model (named 'ner.tarjani', present in the 'model/nlu' 
 ### Updating TARJANI:
 If you already have an installed version of TARJANI, please make a note that TARJANI is frequently updated and to keep up to date with the latest commit, you can update TARJANI by navigating to ```tarjani``` folder and running,
 ```bash
-git pull origin master
+git pull origin main
 ```
 
 ### Run TARJANI:
