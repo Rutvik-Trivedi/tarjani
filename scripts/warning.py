@@ -1,0 +1,2 @@
+class ModelNotTrainedWarning(UserWarning):
+    pass

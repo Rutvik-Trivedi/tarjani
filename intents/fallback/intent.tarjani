@@ -1,0 +1,13 @@
+{
+  "action": "fallback",
+  "query": [],
+  "entity": false,
+  "response": [
+    "Sorry. Unable to understand you. Could you rephrase?",
+    "Couldn't understand you. Please repeat your statement",
+    "Didn't quite get you. Maybe I am unable to do it yet?"
+  ],
+  "sudo": false,
+  "webhook": false,
+  "url": false
+}

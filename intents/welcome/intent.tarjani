@@ -1,0 +1,1 @@
+{"action": "welcome", "query": ["hello", "hi", "heya", "good morning", "good afternoon", "good evening", "hey"], "entity": [], "response": ["Hi", "Hello. How may I help you?", "How may I help you?"], "webhook": false}

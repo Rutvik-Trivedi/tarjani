@@ -1,0 +1,8 @@
+tensorflow
+sklearn-crfsuite
+sklearn
+nltk
+numpy
+requests
+opencv-python
+tensorflow_text
