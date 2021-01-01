@@ -83,8 +83,8 @@ def create(edit=False, intent_folder='../intents', model='lstm'):
     with open(intent_folder+'/'+intent_name+'/intent.tarjani', 'w') as f:
         json.dump(intent, f)
     print("Intent created. Starting Agent Training...")
-    trainer = Trainer()
-    trainer.train_intent(train_model=model)
+    trainer = Trainer(pipeline_name=args.model)
+    trainer.train_intent()
     if flag.lower()=='y':
         print("Sorting out the Entities...")
         trainer.train_entity(intent_name)

@@ -1,6 +1,6 @@
 ![T.A.R.J.A.N.I.](../../images/bg.v1.jpg)
 
-# Examples
+# Extras
 This directory of the repository will contain some of the full implementations of the models. These implementations are open for usage or modifications. Do let me know your feedback on these. I shall keep updating this section with scripts as I keep updating TARJANI.
 
 #### Current Available Implementations:

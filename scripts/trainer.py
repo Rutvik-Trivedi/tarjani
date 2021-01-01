@@ -1,21 +1,27 @@
 import logging
 logging.basicConfig(level=logging.INFO, format="[%(levelname)s]:%(asctime)s:%(message)s")
 logging.info('Importing the required files. It may take a while')
+
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 import warnings
 warnings.filterwarnings('ignore')
 import pickle
-import json
-from tqdm import tqdm
 
-from exceptions import EntityOverwriteError, ModelNotFoundError
-from models import ModelCreator
-from preprocessing import Preprocessor
-from utils import *
+import yaml
 
-import tensorflow as tf
-from sklearn.preprocessing import LabelEncoder
+from exceptions import EntityOverwriteError, ModelNotFoundError, PipelineNotFoundError
+from dataloaders import SimpleLoader, EmbeddingLoader, CRFLoader
+from tokenizers import KerasTokenizer
+from featurizers import AlbertFeaturizer, EmbeddingFeaturizer
+from classifiers import (
+    CNNClassifier, SVCClassifier, LSTMClassifier
+)
+from entity_extractors import CRFClassifier
+import saveutils
+
+from lookup import lookup
+
 
 def _check_usability():
     if not os.path.exists('../model/'):
@@ -24,178 +30,116 @@ def _check_usability():
         os.mkdir('../model/nlu')
     if not os.path.exists('../model/vision'):
         os.mkdir('../model/vision')
+    assert os.path.exists('../glove/glove.6B.50d.txt'), "Embedding file does not exist. Please untar the glove.6B.50d.tar.xz file present in the glove folder to use TARJANI properly"
+    assert os.path.exists('../model/nlu/ner.tarjani'), "NER model file does not exist. Please visit http://tarjani.is-great.net for installation steps"
+
 
 
 class Trainer():
 
-    def __init__(self):
+    def __init__(self, pipeline_name='lstm'):
         logging.info('Initializing the Trainer')
         _check_usability()
-        assert os.path.exists('../glove/glove.6B.50d.txt'), "Embedding file does not exist. Please untar the glove.6B.50d.tar.xz file present in the glove folder to use TARJANI properly"
-        assert os.path.exists('../model/nlu/ner.tarjani'), "NER model file does not exist. Please visit http://tarjani.is-great.net for installation steps"
-        self.model_creator = ModelCreator()
-        self.processor = Preprocessor()
-        self.encoder = LabelEncoder()
+        self.pipeline_name = pipeline_name
+        self.lookup = lookup
+        logging.info("Generating the specified Pipeline: {}".format(self.pipeline_name))
+        self.pipeline = self._get_pipeline(self.pipeline_name)
+        logging.info("Loading the pipeline settings")
+        self.settings = self._get_settings(self.pipeline_name)['settings']
 
 
-    def collect_intent_data(self, shuffle, intent_folder='../intents', save=False, save_folder='../data/intent'):
-        intent_list = os.listdir(intent_folder)
-        train_X = []
-        train_y = []
-
-        for intent in tqdm(intent_list):
-            if intent=='fallback':
-                continue
-
-            filepath = intent_folder+'/'+intent+'/intent.tarjani'
-            with open(filepath, 'r') as f:
-                data = json.load(f)
-
-            for query in data['query']:
-                x, y = self.processor.make_permutations(query, intent, shuffle=shuffle)
-                train_X+=x
-                train_y+=y
-
-        train_y = self.encoder.fit_transform(train_y)
-        if save:
-            logging.info('Save option set to true. Saving the data')
-            if not os.path.exists(save_folder):
-                os.mkdir(save_folder)
-            with open(save_folder+'/data.tarjani', 'wb') as f:
-                pickle.dump((train_X, train_y), f)
-
-
-        return train_X, train_y, len(intent_list)-1, self.encoder.classes_
-
-
-    def collect_albert_data(self, intent_folder='../intents', save=False, save_folder='../data/intent'):
-        intent_list = os.listdir(intent_folder)
-        logging.info('Creating ALBERT featurizer. This may take a while')
-        albert_model = self.model_creator.make_albert()
-        logging.info('Generating features from sentences. Time taken by this depends on the number of intents and total examples')
-        train_X = []
-        train_y = []
-
-        for intent in tqdm(intent_list):
-            if intent=='fallback':
-                continue
-
-            filepath = intent_folder+'/'+intent+'/intent.tarjani'
-            with open(filepath, 'r') as f:
-                data = json.load(f)
-
-            l = len(data['query'])
-            train_y+=[intent]*l
-            train_X.append(self.processor.create_albert_data(data['query'], albert_model))
-
-        train_X = tf.keras.backend.concatenate(train_X, axis=0)
-        train_y = self.encoder.fit_transform(train_y)
-        if save:
-            logging.info('Save option set to true. Saving the data')
-            if not os.path.exists(save_folder):
-                os.mkdir(save_folder)
-            with open(save_folder+'/data.tarjani', 'wb') as f:
-                pickle.dump((train_X, train_y), f)
-
-
-        return train_X.numpy(), train_y, self.encoder.classes_
-
-
-
-    def train_intent(self, save=True, save_folder='../model/nlu', model_name='default', shuffle=False, train_model='lstm'):
-        logging.info('Collecting training data for intents')
-        if train_model in ['lstm', 'cnn']:
-            train_X, train_y, num_classes, classes = self.collect_intent_data(shuffle=shuffle)
-            logging.info('Creating Basic Tokenizer')
-            tokenizer, pad_seq, maxlen = self.processor.create_tokenizer(train_X)
-            vocab_size = len(tokenizer.word_index)+1
-            embedding_matrix = self.processor.create_embedding_matrix(vocab_size, tokenizer)
-
+    def _get_pipeline(self, name):
+        with open('pipelines.yml', 'r') as f:
+            pipelines = yaml.load(f, Loader=yaml.FullLoader)
+        for pipeline in pipelines:
+            if pipeline['name'] == name:
+                return pipeline
         else:
-            train_X, train_y, classes = self.collect_albert_data()
+            raise PipelineNotFoundError('The specified pipeline could not be found. Did you forget to add it in pipelines.yml?')
 
-        logging.info('Training model is set to {}'.format(train_model.upper()))
-        if train_model == 'lstm':
-            model = self.model_creator.make_lstm(maxlen, vocab_size, embedding_matrix, num_classes)
-            model.compile(optimizer='adam', loss="sparse_categorical_crossentropy", metrics=['accuracy'])
 
-        elif train_model == 'cnn':
-            model = self.model_creator.make_cnn(maxlen, vocab_size, embedding_matrix, num_classes)
-            model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
+    def _get_settings(self, name):
+        with open('settings.yml', 'r') as f:
+            settings = yaml.load(f, Loader=yaml.FullLoader)
 
-        elif train_model == 'albert':
-            model = self.model_creator.make_svc()
-
+        for setting in settings:
+            if setting['name'] == name:
+                return setting
         else:
-            raise ModelNotFoundError('Could not load the model {}. It is not yet supported. Please open an issue to get your model added.'.format(train_model))
+            raise PipelineNotFoundError("The specified pipeline could not be found. Did you forget to add it in settings.yml?")
 
-        #Train the model
-        logging.info("Started Training. This may take a while if the number of intents is large")
-        if train_model in ['lstm', 'cnn']:
-            history = model.fit(pad_seq, train_y, epochs=20, batch_size=5, verbose=1)
-        elif train_model == 'albert':
-            history = model.fit(train_X, train_y)
+
+    def train_intent(self, save=True):
+        logging.info('Processing the pipeline')
+        if self.pipeline['dataloader']:
+            logging.info('Generating the intent training data')
+            self.dataloader = self.lookup[self.pipeline['dataloader']](**self.settings['intent'])
+            train_X, train_y = self.dataloader.data(**self.settings['intent'])
+            self.settings['intent'].update(self.dataloader.__dict__)
+            num_classes = len(set(train_y))
+            self.settings['intent'].update({'num_classes':num_classes})
+        else:
+            logging.info("Dataloader Component set to None. Skipping...")
+            self.dataloader = None
+        if self.pipeline['tokenizer']:
+            logging.info('Creating the Tokenizer and processing data')
+            self.tokenizer = self.lookup[self.pipeline['tokenizer']](**self.settings['intent'])
+            self.tokenizer.set_tokenizer()
+            train_X = self.tokenizer.tokenize_and_pad(train_X)
+            self.settings['intent'].update(self.tokenizer.__dict__)
+        else:
+            logging.info("Tokenizer Component set to None. Skipping...")
+            self.tokenizer = None
+        if self.pipeline['featurizer']:
+            logging.info('Generating the featurizer model and processing the data')
+            self.settings['intent'].update({'tokenizer':self.tokenizer.tokenizer})
+            self.featurizer = self.lookup[self.pipeline['featurizer']](**self.settings['intent'])
+            self.settings['intent'].update(self.featurizer.__dict__)
+            self.featurizer.build(**self.settings['intent'])
+            train_X = self.featurizer.predict(train_X)
+        else:
+            logging.info("Featurizer Component set to None. Skipping...")
+            self.featurizer = None
+        if self.pipeline['classifier']:
+            logging.info('Generating the intent classifier model')
+            self.classifier = self.lookup[self.pipeline['classifier']](**self.settings['intent'])
+            logging.info('Training the classifier model')
+            history = self.classifier.train(train_X, train_y, **self.settings['intent'])
+        else:
+            logging.info("Classifier Component set to None. Skipping...")
+            self.classifier = None
+
         if save:
-            logging.info('Save model option is set to True. Saving the model')
-            classes = classes.tolist()
-            try:
-                classes.append(maxlen)
-            except UnboundLocalError:
-                classes.append(None)
-            if train_model in ['lstm', 'cnn']:
-                model.save(save_folder+'/'+model_name+'.tarjani')
-                with open(save_folder+'/settings.tarjani', 'wb') as f:
-                    pickle.dump((tokenizer, classes), f)
-            else:
-                with open(save_folder+'/'+model_name+'.tarjani', 'wb') as f:
-                    pickle.dump(model, f)
-                with open(save_folder+'/settings.tarjani', 'wb') as f:
-                    pickle.dump(([], classes), f)
+            logging.info("Save option set to True. Saving the required components of the Pipeline")
+            pipeline = [self.tokenizer, self.featurizer, self.classifier]
+            saveutils.save_intent_pipeline(self.pipeline_name, pipeline, self.settings['intent'])
+
         return history
 
-
-
-    def collect_entity_data(self, intent_name, intent_folder='../intents', save=False):
-        train_X = []
-        train_y = []
-        stemmer = PorterStemmer()
-        filepath = intent_folder+'/'+intent_name+'/intent.tarjani'
-        with open(filepath, 'r') as f:
-            data = json.load(f)
-        for i in tqdm(range(len(data['query']))):
-            tokens = word_tokenize(data['query'][i])
-            tags = pos_tag(tokens)
-            stems = [stemmer.stem(i) for i in tokens]
-            x = encode(tags, stems)
-            y = ['O']*len(x)
-            for key in data['entity'][i].keys():
-                if str(type(data['entity'][i][key]))=="<class 'int'>":
-                    y[data['entity'][i][key]] = key
-                elif not data['entity'][i][key]:
-                    continue
-                else:
-                    for j in data['entity'][i][key]:
-                        if y[j] != "O":
-                            raise EntityOverwriteError("The word {} is already assigned an entity. Entity overwriting is not allowed. Please create the intent afresh".format(tags[0][j]))
-                        y[j] = key
-            train_X.append(x)
-            train_y.append(y)
+    def train_entity(self, intent_name, save=True):
+        self.settings['entity'].update({'intent':intent_name})
+        if self.pipeline['entity_loader']:
+            logging.info('Processing entity data')
+            self.entity_loader = self.lookup[self.pipeline['entity_loader']](**[self.settings['entity']])
+            train_X, train_y = self.entity_loader.data(self.settings['entity'])
+            self.settings['entity'].update(self.entity_loader.__dict__)
+        else:
+            logging.info("Entity Dataloader Component set to None. Skipping...")
+            self.entity_loader, train_X, train_y = None, None, None
+        if self.pipeline['entity_extractor']:
+            logging.info('Generating the entity extraction model')
+            self.entity_extractor = lookup[pipeline['entity_extractor']](**self.settings['entity'])
+            logging.info('Training the entity extractor model')
+            history = self.entity_extractor.train(train_X, train_y)
+            self.settings['entity'].update(self.entity_extractor.__dict__)
+        else:
+            logging.info("Entity Classifier Component set to None. Skipping...")
+            self.entity_extractor = None
+            return
 
         if save:
-            logging.info("Save option set to true. Saving the data for future use")
-            with open(intent_folder+'/'+intent_name+'/data.tarjani', 'wb') as f:
-                pickle.dump((train_X, train_y), f)
+            logging.info("Save option set to True. Saving the required components of the Pipeline")
+            pipeline = [self.entity_extractor]
+            saveutils.save_entity_pipeline(self.pipeline_name, intent_name, pipeline, self.settings['entity'])
 
-        return train_X, train_y
-
-    def train_entity(self, intent_name, intent_folder='../intents', algorithm='lbfgs', c1=0.6, c2=0.01, max_iterations=100, all_possible_transitions=True):
-        logging.info('Preparing the Entity training data')
-        train_X, train_y = self.collect_entity_data(intent_name=intent_name)
-        logging.info('Creating the CRF Model')
-        crf = self.model_creator.make_crf(algorithm=algorithm, c1=c1, c2=c2, max_iterations=max_iterations, all_possible_transitions=all_possible_transitions)
-        logging.info("Starting the training")
-        crf.fit(train_X, train_y)
-        logging.info("Done. Saving the Entity model settings")
-        with open(intent_folder+'/'+intent_name+'/entity.tarjani', 'wb') as f:
-            pickle.dump(crf, f)
-        return True
+        return history

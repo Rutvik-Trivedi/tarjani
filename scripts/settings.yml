@@ -1,0 +1,68 @@
+- name: cnn
+  settings:
+    intent:
+      batch_size: 32
+      permute_count: 5
+      num_layers: 50
+      trainable_embeddings: false
+      filters: 32
+      activation: relu
+      pool_size: 2
+      classifier_activation: softmax
+      loss: sparse_categorical_crossentropy
+      optimizer: adam
+      metrics:
+        - accuracy
+      epochs: 20
+    entity:
+      algorithm: lbfgs
+      c1: 0.6
+      c2: 0.01
+      max_iterations: 100
+      all_possible_transitions: true
+
+- name: lstm
+  settings:
+    intent:
+      batch_size: 32
+      permute_count: 5
+      num_layers: 50
+      trainable_embeddings: false
+      dropout: 0.2
+      activation: softmax
+      optimizer: adam
+      loss: sparse_categorical_crossentropy
+      metrics:
+        - accuracy
+      epochs: 20
+    entity:
+      algorithm: lbfgs
+      c1: 0.6
+      c2: 0.01
+      max_iterations: 100
+      all_possible_transitions: true
+
+- name: albert
+  settings:
+    intent:
+      batch_size: 32
+      model_path: ../../model/nlu/albert/albert_model
+      tokenizer_path: ../../model/nlu/albert/albert_tokenizer
+      trainable: False
+      C:
+        - 1
+        - 2
+        - 5
+        - 10
+        - 20
+        - 100
+      gamma:
+        - 0.1
+      kernel:
+        - linear
+    entity:
+      algorithm: lbfgs
+      c1: 0.6
+      c2: 0.01
+      max_iterations: 100
+      all_possible_transitions: true

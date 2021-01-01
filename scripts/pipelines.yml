@@ -1,0 +1,26 @@
+- pipeline: "Classification with LSTM and CRF"
+  name: lstm
+  dataloader: embedding_loader
+  entity_loader: crf_loader
+  tokenizer: keras_tokenizer
+  featurizer: embedding_featurizer
+  classifier: lstm_classifier
+  entity_extractor: crf_classifier
+
+- pipeline: "Classification with CNN and CRF"
+  name: cnn
+  dataloader: embedding_loader
+  entity_loader: crf_loader
+  tokenizer: keras_tokenizer
+  featurizer: embedding_featurizer
+  classifier: cnn_classifier
+  entity_extractor: crf_classifier
+
+- pipeline: "Classification with ALBERT + SVC and CRF"
+  name: albert
+  dataloader: simple_loader
+  entity_loader: crf_loader
+  tokenizer: null
+  featurizer: albert_featurizer
+  classifier: svm_classifier
+  entity_extractor: crf_classifier

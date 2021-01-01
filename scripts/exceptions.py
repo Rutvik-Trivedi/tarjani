@@ -21,3 +21,11 @@ class ModelNotFoundError(Exception):
 
     def __str__(self):
         return repr(self.value)
+
+class PipelineNotFoundError(Exception):
+
+    def __init__(self, value):
+        self.value = value
+
+    def __str__(self):
+        return repr(self.value)

@@ -8,6 +8,10 @@ even add your actions and teach TARJANI to perform your designed skills. This so
 # Note:
 A demo repository has been created now which contains videos on the features of TARJANI and giving simple demonstration of its usage. You may find the demonstrations at [tarjani-demo](https://github.com/Rutvik-Trivedi/tarjani-demo).
 
+
+# Update Notes:
+TARJANI is improving constantly with each new updates. Check the [Changelog](#changelog) for more information on what's new and what has been fixed in each new updates
+
 # Documentation
 
 ### Installation:
@@ -173,6 +177,7 @@ To improve the working process of TARJANI and to make TARJANI compatible and adj
 # Changelog
 
 ### What's New?
+- A major update is on its way! Now you can add your own models with minimum coding required! Just inherit the base class and its done! Documentation coming up soon
 - Added simple demonstration videos showing how to use TARJANI. Available at [tarjani-demo](https://github.com/Rutvik-Trivedi/tarjani-demo).
 - Added a new classifier model. Now TARJANI knows what an ALBERT + SVM model is. The keyword to use this model is 'albert'. You will need to download this model from [tarjani-model-zoo](https://github.com/Rutvik-Trivedi/tarjani-model-zoo)
 - Refactored the structure of the files. Added some experimental vision features. Refer [the documentation](scripts/experimental/README.md) for full documentation.

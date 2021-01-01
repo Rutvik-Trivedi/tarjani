@@ -6,3 +6,4 @@ numpy
 requests
 opencv-python
 tensorflow_text
+pyyaml

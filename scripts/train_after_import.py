@@ -7,12 +7,11 @@ from trainer import Trainer
 
 parser = ArgumentParser()
 parser.add_argument("--mode", "-m", help="Which mode is the script run on", default="import", type=str)
-parser.add_argument("--shuffle", "-s", help="Whether to shuffle the intent data", default=False, type=bool)
 parser.add_argument('--model', "-M", help="Choose which model to train the classifier on", default='lstm', type=str)
 args = parser.parse_args()
 
 
-trainer = Trainer()
+trainer = Trainer(pipeline_name=args.model)
 logging.info("Starting agent training after {}ing...".format(args.mode))
-trainer.train_intent(shuffle=args.shuffle, train_model=args.model)
+trainer.train_intent()
 logging.info("Agent training complete. Agent successfully {}ted".format(args.mode))
