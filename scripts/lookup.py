@@ -1,21 +1,20 @@
-from dataloaders import SimpleLoader, EmbeddingLoader, CRFLoader
-from tokenizers import KerasTokenizer
-from featurizers import AlbertFeaturizer, EmbeddingFeaturizer
-from classifiers import (
-    CNNClassifier, SVCClassifier, LSTMClassifier
-)
-from entity_extractors import CRFClassifier
+import dataloaders
+import tokenizers
+import featurizers
+import classifiers
+import entity_extractors
 
 
 lookup = {
-  "cnn_classifier": CNNClassifier.CNNClassifier,
-  "lstm_classifier": LSTMClassifier.LSTMClassifier,
-  "svm_classifier": SVCClassifier.SVCClassifier,
-  "crf_loader": CRFLoader.CRFLoader,
-  "embedding_loader": EmbeddingLoader.EmbeddingLoader,
-  "simple_loader": SimpleLoader.SimpleLoader,
-  "crf_classifier": CRFClassifier.CRFClassifier,
-  "albert_featurizer": AlbertFeaturizer.AlbertFeaturizer,
-  "embedding_featurizer": EmbeddingFeaturizer.EmbeddingFeaturizer,
-  "keras_tokenizer": KerasTokenizer.KerasTokenizer
+  "cnn_classifier": classifiers.CNNClassifier.CNNClassifier,
+  "lstm_classifier": classifiers.LSTMClassifier.LSTMClassifier,
+  "svm_classifier": classifiers.SVMClassifier.SVMClassifier,
+  "crf_loader": dataloaders.CRFLoader.CRFLoader,
+  "embedding_loader": dataloaders.EmbeddingLoader.EmbeddingLoader,
+  "simple_loader": dataloaders.SimpleLoader.SimpleLoader,
+  "crf_classifier": entity_extractors.CRFClassifier.CRFClassifier,
+  "albert_featurizer": featurizers.AlbertFeaturizer.AlbertFeaturizer,
+  "embedding_featurizer": featurizers.EmbeddingFeaturizer.EmbeddingFeaturizer,
+  "keras_tokenizer": tokenizers.KerasTokenizer.KerasTokenizer,
+  "albert_tokenizer": tokenizers.AlbertTokenizer.AlbertTokenizer
 }

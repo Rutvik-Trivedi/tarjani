@@ -4,6 +4,7 @@
       batch_size: 32
       permute_count: 5
       num_layers: 50
+      embedding_file_path: ../model/nlu/glove/glove.6B.50d.txt
       trainable_embeddings: false
       filters: 32
       activation: relu
@@ -27,6 +28,7 @@
       batch_size: 32
       permute_count: 5
       num_layers: 50
+      embedding_file_path: ../model/nlu/glove/glove.6B.50d.txt
       trainable_embeddings: false
       dropout: 0.2
       activation: softmax
@@ -46,8 +48,8 @@
   settings:
     intent:
       batch_size: 32
-      model_path: ../../model/nlu/albert/albert_model
-      tokenizer_path: ../../model/nlu/albert/albert_tokenizer
+      model_path: ../model/nlu/albert/albert_model
+      tokenizer_path: ../model/nlu/albert/albert_tokenizer
       trainable: False
       C:
         - 1

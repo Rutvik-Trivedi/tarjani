@@ -5,6 +5,8 @@ class SimpleLoader(BaseLoader):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.num_classes = None
+        self.requires_save = False
 
 
     def name(self):

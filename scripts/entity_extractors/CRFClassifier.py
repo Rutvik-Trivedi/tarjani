@@ -1,4 +1,11 @@
 import sklearn_crfsuite
+from sklearn_crfsuite import metrics
+from sklearn.metrics import make_scorer
+from sklearn.model_selection import RandomizedSearchCV
+import scipy
+
+import warnings
+warnings.filterwarnings('ignore')
 
 from .BaseClassifier import BaseClassifier
 
@@ -9,6 +16,7 @@ class CRFClassifier(BaseClassifier):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.requires_save = True
 
 
     def name(self):
@@ -18,21 +26,19 @@ class CRFClassifier(BaseClassifier):
     def modelling(self, **kwargs):
         crf = sklearn_crfsuite.CRF(
             algorithm=kwargs.get('algorithm', 'lbfgs'),
-            c1=kwargs.get('c1', 0.6),
-            c2=kwargs.get('c2', 0.01),
             max_iterations=kwargs.get('max_iterations', 100),
             all_possible_transitions=kwargs.get('all_possible_transitions', True)
             )
-        return crf
-
-
-    def _model_folder(self, intent):
-        return '../../intents/'+intent+'/'
-
-    def save(self, intent=None):
-        with open(self._model_folder(intent)+'entity.tarjani', 'wb') as f:
-            pickle.dump(self.model, f)
-
-    def load(self, intent):
-        with open(self._model_folder(intent)+'entity.tarjani', 'wb') as f:
-            self.model = pickle.load(f)
+        default_param_space = {
+        'c1': scipy.stats.expon(scale=0.5),
+        'c2': scipy.stats.expon(scale=0.05),
+        }
+        f1_scorer = make_scorer(metrics.flat_f1_score,
+                        average='weighted', labels=kwargs.get('labels'))
+        rs = RandomizedSearchCV(crf, default_param_space,
+                        cv=3,
+                        verbose=1,
+                        n_jobs=-1,
+                        n_iter=50,
+                        scoring=f1_scorer)
+        return rs

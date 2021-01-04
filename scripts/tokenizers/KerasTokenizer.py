@@ -11,6 +11,8 @@ class KerasTokenizer(BaseTokenizer):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.Tokenizer()
+        self.max_length = None
+        self.requires_save = True
 
     def name(self):
         return 'keras_tokenizer'
@@ -23,8 +25,8 @@ class KerasTokenizer(BaseTokenizer):
         return None
 
     def tokenize_and_pad(self, x, padding='post'):
-        max_length = self._get_max_length(x)
+        self.max_length = self._get_max_length(x)
         self.tokenize(x)
         sequences = self.tokenizer.texts_to_sequences(x)
-        sequences = pad_sequences(sequences, maxlen=max_length, padding=padding)
+        sequences = pad_sequences(sequences, maxlen=self.max_length, padding=padding)
         return sequences

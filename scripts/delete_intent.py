@@ -8,16 +8,8 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 from trainer import Trainer
 
-def _check_usability():
-    if not os.path.exists('../model/'):
-        os.mkdir('../model/')
-    if not os.path.exists('../model/nlu'):
-        os.mkdir('../model/nlu')
-    if not os.path.exists('../model/vision'):
-        os.mkdir('../model/vision')
 
 def delete(model='lstm'):
-    _check_usability()
     os.system('clear')
     l = os.listdir('../intents/')
     intent_name = input("\nEnter the name of the intent to delete: ")

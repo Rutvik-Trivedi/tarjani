@@ -20,7 +20,7 @@
   name: albert
   dataloader: simple_loader
   entity_loader: crf_loader
-  tokenizer: null
+  tokenizer: albert_tokenizer
   featurizer: albert_featurizer
   classifier: svm_classifier
   entity_extractor: crf_classifier

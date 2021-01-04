@@ -12,7 +12,7 @@ class BaseClassifier():
     '''
 
     def __init__(self, **kwargs):
-        self.model = None
+        pass
 
     def name(self):
         return 'base_classifier'
@@ -26,7 +26,7 @@ class BaseClassifier():
     def train(self, train_X, train_y, **kwargs):
         self.model = self.modelling(**kwargs)
         self.build(self.model, **kwargs)
-        history = self.model.fit(train_X, train_y, **kwargs)
+        history = self.model.fit(train_X, train_y)
         return history
 
     def predict(self, X):

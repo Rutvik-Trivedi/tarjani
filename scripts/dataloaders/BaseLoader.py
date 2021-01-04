@@ -110,3 +110,6 @@ class BaseLoader:
             return self.encoder.fit_transform(y)
         else:
             return self.encoder.transform(y)
+
+    def _set_num_classes(self, train_y):
+        self.num_classes = len(set(train_y))

@@ -16,21 +16,22 @@ class CNNClassifier(BaseClassifier):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.classifier_input_dim = kwargs.get('featurizer_output_dim')
+        self.requires_save = True
 
     def name(self):
         return 'cnn_classifier'
 
     def get_kernel_size(self, maxlen):
-        if maxlen==1 or maxlen==2:
+        if maxlen<=2:
             return 1
         else:
-            return int(maxlen/3)
+            return maxlen//3
 
     def modelling(self, **kwargs):
         model = Sequential()
         model.add(Input(shape=self.classifier_input_dim))
         model.add(Conv1D(filters=kwargs.get('filters',32),
-                         kernel_size=self.get_kernel_size(kwargs.get('maxlen',20)),
+                         kernel_size=self.get_kernel_size(kwargs.get('max_length',1)),
                          activation=kwargs.get('activation', 'relu')))
         model.add(MaxPooling1D(pool_size=kwargs.get('pool_size', 2)))
         model.add(Flatten())

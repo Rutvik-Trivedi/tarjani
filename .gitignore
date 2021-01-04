@@ -2,4 +2,4 @@ __pycache__/
 test.*
 t.py
 model/ner.tarjani
-glove/glove.6B.50d.txt
+*.txt

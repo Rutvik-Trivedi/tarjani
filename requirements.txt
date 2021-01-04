@@ -6,4 +6,5 @@ numpy
 requests
 opencv-python
 tensorflow_text
+tensorflow_hub
 pyyaml

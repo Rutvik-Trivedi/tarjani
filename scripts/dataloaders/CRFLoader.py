@@ -1,12 +1,20 @@
 from .BaseLoader import BaseLoader
+import json
+from nltk.tokenize import word_tokenize
+from nltk.tag import pos_tag
+from itertools import chain
 
 class CRFLoader(BaseLoader):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.requires_save = False
 
     def name(self):
         return 'crf_loader'
+
+    def get_labels(self, train_y):
+        return set(chain.from_iterable(train_y))
 
     def issymbol(self, character):
         ascii = ord(character)
@@ -66,16 +74,17 @@ class CRFLoader(BaseLoader):
 
         return train_X
 
-    def data(self, intent_name, intent_folder='../../intents', **kwargs):
+    def data(self, intent_name, **kwargs):
         train_X = []
         train_y = []
+        intent_folder='../intents'
         filepath = intent_folder+'/'+intent_name+'/intent.tarjani'
         with open(filepath, 'r') as f:
             data = json.load(f)
         for i in range(len(data['query'])):
             tokens = word_tokenize(data['query'][i])
             tags = pos_tag(tokens)
-            stems = [self.stemmer.stem(i) for i in tokens]
+            stems = [self.lemmatizer.lemmatize(i) for i in tokens]
             x = self.encode(tags, stems)
             y = ['O']*len(x)
             for key in data['entity'][i].keys():
