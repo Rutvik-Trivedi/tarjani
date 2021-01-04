@@ -4,16 +4,9 @@ import argparse
 from trainer import Trainer
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
-def _check_usability():
-    if not os.path.exists('../model/'):
-        os.mkdir('../model/')
-    if not os.path.exists('../model/nlu'):
-        os.mkdir('../model/nlu')
-    if not os.path.exists('../model/vision'):
-        os.mkdir('../model/vision')
 
-def create(edit=False, intent_folder='../intents', model='lstm'):
-    _check_usability()
+def create(edit=False, intent_folder='../intents', model='lstm', train=True):
+
     os.system('clear')
     l = os.listdir('../intents/')
     print("***Welcome to the TARJANI Intent Creator***")
@@ -82,6 +75,9 @@ def create(edit=False, intent_folder='../intents', model='lstm'):
     print("Creating intent...")
     with open(intent_folder+'/'+intent_name+'/intent.tarjani', 'w') as f:
         json.dump(intent, f)
+    if not train:
+        print("Intent created successfully. Training option set to False. To train the agent, please run train_after_import.py file")
+        return
     print("Intent created. Starting Agent Training...")
     trainer = Trainer(pipeline_name=args.model)
     trainer.train_intent()
@@ -96,9 +92,10 @@ def get_parser():
     parser = argparse.ArgumentParser()
     parser.add_argument('--edit', '-e', type=bool, default=False, help="Whether to use in edit mode or not")
     parser.add_argument('--model', '-M', help="Choose which model to train the classifier on. Default is LSTM", default='lstm', type=str)
+    parser.add_argument('--train', '-t'. type=bool, default=Truem help="Whether to train the agent after creating the intent or not")
     return parser
 
 if __name__=='__main__':
     parser = get_parser()
     args = parser.parse_args()
-    create(edit=args.edit, model=args.model)
+    create(edit=args.edit, model=args.model, train=args.train)

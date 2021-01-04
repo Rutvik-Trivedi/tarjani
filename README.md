@@ -19,14 +19,16 @@ TARJANI is still under development. So, a working model of TARJANI is yet to be 
 ```bash
 git clone https://github.com/Rutvik-Trivedi/tarjani.git
 ```
-After this, you just need to install its dependencies and do the final setup by running the following commands :
+After this, you just need to do the final setup by running the following commands :
 ```bash
-cd tarjani
-pip3 install -r requirements.txt
-cd scripts
+cd tarjani/scripts
 python3 complete_install.py
-python3 train_after_import.py
 ```
+To check the download size of this repository as a single software and to avoid complexity and employ generalism, some of the mandatory models are provided separately for download. This situation may cause some errors in running the ```complete_install.py``` file for first time installation.  
+In case an error is encountered, please follow the steps mentioned in the error and run the ```complete_install.py``` script again.  
+
+Please raise an issue in case there might be any difficulty in installing the repository.
+
 In case, the default NER model (named 'ner.tarjani', present in the 'model/nlu' folder) is missing, you can download the model from http://tarjani.is-great.net and place the model file in the 'model/nlu' folder.
 
 ### Updating TARJANI:
@@ -47,7 +49,7 @@ python3 interact.py --sensitivity 0.5
 # OR
 python3 interact.py -s 0.5
 ```
-THe value of ```--sensitivity``` is between 0.0 and 1.0 (```float``` type). The default value is ```0.6```
+The value of ```--sensitivity``` is between 0.0 and 1.0 (```float``` type). The default value is ```0.6```
 
 # What are TARJANI skills?
 _____
@@ -69,6 +71,16 @@ cd scripts
 python3 create_intent.py
 ```
 And that's it! The intent creator will guide you through the steps of creating the intent in a detailed manner.  
+
+##### Note:
+The ```create_intent.py``` file will train the agent after every successful addition of an intent. In case this feels a little slow and repetitive for you, or you want to train the model only after creating several intents, you can skip the training by passing the ```train``` argument as belows:
+```bash
+python3 create_intent.py --train False  # Will only add the intent and not train the model
+```
+After creating your required number of intents, run the command,
+```bash
+python3 train_after_import.py   # Will train the agent based on existing intents
+```
 
 Moreover, you are in complete control over TARJANI. You can now even choose which model to train TARJANI on. in the present commit, you have two model options to train TARJANI on, LSTM model and CNN model. If you are not a programmer or you do not know much about what these models are, just forget about it as both are equally good and I have already implemented both the models for you. By default, the model will train on LSTM. But if you want to create your intent and train it on CNN, just run the following commands:
 ```bash
@@ -142,6 +154,10 @@ In case you want to delete an intent for some reason, you just need to run the f
 python3 delete_intent.py
 ## Or
 python3 delete_intent.py --model cnn   # Default : lstm
+```
+You can skip the training process after deleting the intent by using,
+```bash
+python3 delete_intent.py --train False
 ```
 and it will guide you through deleting the intent. You just need to input the name of the intent to delete.
 #### 5) Editing an existing intent:
