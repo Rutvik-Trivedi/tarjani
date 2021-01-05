@@ -17,15 +17,21 @@ class BaseFeaturizer():
         self.featurizer_model = None
         self.featurizer_output_dim = None
 
+    def __call__(self, **kwargs):
+        self.featurizer_model = self.modelling(**kwargs)
+        self.featurizer_output_dim = self._get_featurizer_output_dim()
+
+    def _get_featurizer_output_dim(self):
+        dim = self.featurizer_model.layers[-1].output.shape
+        if dim[0] is None:
+            return dim[1:]
+        return dim
+
     def name(self):
         return 'base_featurizer'
 
     def modelling(self, **kwargs):
         raise NotImplementedError
-
-    def build(self, **kwargs):
-        clf = self.modelling(**kwargs)
-        self.featurizer_model = clf
 
     def predict(self, X):
         return self.featurizer_model(X)

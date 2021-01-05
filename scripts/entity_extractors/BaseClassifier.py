@@ -14,6 +14,10 @@ class BaseClassifier():
     def __init__(self, **kwargs):
         pass
 
+    def __call__(self, **kwargs):
+        self.model = self.modelling(**kwargs)
+        self.build(self.model, **kwargs)
+
     def name(self):
         return 'base_classifier'
 
@@ -24,10 +28,7 @@ class BaseClassifier():
         pass
 
     def train(self, train_X, train_y, **kwargs):
-        self.model = self.modelling(**kwargs)
-        self.build(self.model, **kwargs)
-        history = self.model.fit(train_X, train_y)
-        return history
+        return self.model.fit(train_X, train_y)
 
     def predict(self, X):
         return self.model.predict(X)

@@ -8,7 +8,6 @@ class SVMClassifier(BaseClassifier):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.classifier_input_dim = kwargs.get('featurizer_output_dim', None)
         self.requires_save = True
 
 
@@ -26,6 +25,5 @@ class SVMClassifier(BaseClassifier):
         return clf
 
     def train(self, train_X, train_y, **kwargs):
-        self.model = self.modelling(**kwargs)
         history = self.model.fit(train_X.numpy(), train_y)
         return history

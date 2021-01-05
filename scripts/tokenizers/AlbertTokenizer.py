@@ -11,12 +11,14 @@ class AlbertTokenizer(BaseTokenizer):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.tokenizer_output_dim = (128,)
-        self.Tokenizer()
         self.requires_save = False
 
     def name(self):
         return 'albert_tokenizer'
+
+    def __call__(self):
+        self.tokenizer_output_dim = (128,)
+        self.tokenizer = self.Tokenizer()
 
     def Tokenizer(self, **kwargs):
         input_ = tf.keras.layers.Input(shape=(), dtype=tf.string)

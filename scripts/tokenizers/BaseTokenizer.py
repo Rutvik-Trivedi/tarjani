@@ -14,6 +14,9 @@ class BaseTokenizer():
     def __init__(self, **kwargs):
         self.tokenizer = None
 
+    def __call__(self):
+        self.tokenizer = self.Tokenizer()
+
     def name(self):
         return 'base_tokenizer'
 
@@ -29,9 +32,6 @@ class BaseTokenizer():
 
     def tokenize(self, x):
         raise NotImplementedError
-
-    def set_tokenizer(self):
-        self.tokenizer = self.Tokenizer()
 
     def tokenize_and_pad(self, x, padding='post'):
         raise NotImplementedError

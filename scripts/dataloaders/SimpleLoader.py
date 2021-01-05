@@ -12,7 +12,8 @@ class SimpleLoader(BaseLoader):
     def name(self):
         return 'simple_loader'
 
-    def data(self, **kwargs):
+    def __call__(self, **kwargs):
         train_X, train_y = self._get_raw_data()
         train_y = self._class_encode(train_y, fit=True)
+        self._set_num_classes(train_y)
         return train_X, train_y

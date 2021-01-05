@@ -30,7 +30,7 @@ def delete(model='lstm', train=True):
 def get_parser():
     parser = ArgumentParser()
     parser.add_argument('--model', '-M', type=str, default='lstm', help="Choose which model to train the classifier on after deleting the intent. Default is LSTM")
-    parser.add_argument('--train', '-t'. type=bool, default=Truem help="Whether to train the agent after creating the intent or not")
+    parser.add_argument('--train', '-t', type=bool, default=True, help="Whether to train the agent after creating the intent or not")
     return parser
 
 if __name__=='__main__':

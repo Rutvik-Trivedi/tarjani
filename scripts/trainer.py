@@ -85,8 +85,7 @@ class Trainer():
             logging.info('Generating the intent training data')
             self.dataloader = self.lookup[self.pipeline['dataloader']](**self.settings['intent'])
             with SettingsUpdater(self.dataloader, self.settings, 'intent'):
-                train_X, train_y = self.dataloader.data(**self.settings['intent'])
-                self.dataloader._set_num_classes(train_y)
+                train_X, train_y = self.dataloader(**self.settings['intent'])
 
         else:
             logging.info("Dataloader Component set to None. Skipping...")
@@ -96,7 +95,7 @@ class Trainer():
             logging.info('Creating the Tokenizer and processing data')
             self.tokenizer = self.lookup[self.pipeline['tokenizer']](**self.settings['intent'])
             with SettingsUpdater(self.tokenizer, self.settings, 'intent'):
-                self.tokenizer.set_tokenizer()
+                self.tokenizer()
                 train_X = self.tokenizer.tokenize_and_pad(train_X)
 
         else:
@@ -107,7 +106,7 @@ class Trainer():
             logging.info('Generating the featurizer model and processing the data')
             self.featurizer = self.lookup[self.pipeline['featurizer']](**self.settings['intent'])
             with SettingsUpdater(self.featurizer, self.settings, 'intent'):
-                self.featurizer.build(**self.settings['intent'])
+                self.featurizer(**self.settings['intent'])
                 train_X = self.featurizer.predict(train_X)
 
         else:
@@ -118,6 +117,7 @@ class Trainer():
             logging.info('Generating the intent classifier model')
             self.classifier = self.lookup[self.pipeline['classifier']](**self.settings['intent'])
             logging.info('Training the classifier model')
+            self.classifier(**self.settings['intent'])
             history = self.classifier.train(train_X, train_y, **self.settings['intent'])
 
         else:
@@ -141,9 +141,8 @@ class Trainer():
                 logging.info('Processing entity data')
             self.entity_loader = self.lookup[self.pipeline['entity_loader']](**self.settings['entity'])
             with SettingsUpdater(self.entity_loader, self.settings, 'entity'):
-                train_X, train_y = self.entity_loader.data(intent_name = intent_name, **self.settings['entity'])
-                labels = list(self.entity_loader.get_labels(train_y))
-                self.settings['entity'].update({'labels': labels})
+                train_X, train_y = self.entity_loader(intent_name = intent_name, **self.settings['entity'])
+
         else:
             if verbose:
                 logging.info("Entity Dataloader Component set to None. Skipping...")
@@ -156,6 +155,7 @@ class Trainer():
             if verbose:
                 logging.info('Training the entity extractor model')
             with SettingsUpdater(self.entity_extractor, self.settings, 'entity'):
+                self.entity_extractor(**self.settings['entity'])
                 history = self.entity_extractor.train(train_X, train_y, **self.settings['entity'])
 
         else:

@@ -34,7 +34,6 @@ class EmbeddingFeaturizer(BaseFeaturizer):
         model.compile(optimizer = kwargs.get('optimizer', 'adam'),
                            loss = kwargs.get('loss', 'sparse_categorical_crossentropy'),
                            metrics = kwargs.get('metrics', ['accuracy']))
-        self.featurizer_output_dim = model.layers[-1].output.shape[1:]
 
         return model
 

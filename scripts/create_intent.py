@@ -92,7 +92,7 @@ def get_parser():
     parser = argparse.ArgumentParser()
     parser.add_argument('--edit', '-e', type=bool, default=False, help="Whether to use in edit mode or not")
     parser.add_argument('--model', '-M', help="Choose which model to train the classifier on. Default is LSTM", default='lstm', type=str)
-    parser.add_argument('--train', '-t'. type=bool, default=Truem help="Whether to train the agent after creating the intent or not")
+    parser.add_argument('--train', '-t', type=bool, default=True, help="Whether to train the agent after creating the intent or not")
     return parser
 
 if __name__=='__main__':

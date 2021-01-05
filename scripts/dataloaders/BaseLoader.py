@@ -27,7 +27,7 @@ class BaseLoader:
         self.encoder = LabelEncoder()
         self.batch_size = kwargs.get('batch_size', 32)
 
-    def data(self):
+    def __call__(self):
         raise NotImplementedError
 
     def name(self):

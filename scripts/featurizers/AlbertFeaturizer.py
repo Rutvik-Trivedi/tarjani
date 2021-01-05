@@ -11,11 +11,13 @@ class AlbertFeaturizer(BaseFeaturizer):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.featurizer_output_dim = (768,)
         self.requires_save = False
 
     def name(self):
         return 'albert_featurizer'
+
+    def _get_featurizer_output_dim(self):
+        return (768,)
 
     def modelling(self, **kwargs):
         input_word_ids = tf.keras.layers.Input(

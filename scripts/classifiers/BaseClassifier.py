@@ -15,8 +15,14 @@ class BaseClassifier():
         self.model = None
         self.classifier_input_dim = None
 
+    def __call__(self, **kwargs):
+        self.classifier_input_dim = kwargs.get('featurizer_output_dim')
+        self.model = self.modelling(**kwargs)
+        self.build(self.model, **kwargs)
+
     def name(self):
         return 'base_classifier'
+
 
     def modelling(self, **kwargs):
         raise NotImplementedError
@@ -25,8 +31,6 @@ class BaseClassifier():
         pass
 
     def train(self, train_X, train_y, **kwargs):
-        self.model = self.modelling(**kwargs)
-        self.build(self.model, **kwargs)
         history = self.model.fit(train_X, train_y,
                                  kwargs.get('verbose',1), kwargs.get('epochs',20))
         return history

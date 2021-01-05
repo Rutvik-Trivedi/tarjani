@@ -10,6 +10,36 @@ class CRFLoader(BaseLoader):
         super().__init__(**kwargs)
         self.requires_save = False
 
+    def __call__(self, intent_name, **kwargs):
+        train_X = []
+        train_y = []
+        intent_folder='../intents'
+        filepath = intent_folder+'/'+intent_name+'/intent.tarjani'
+        with open(filepath, 'r') as f:
+            data = json.load(f)
+        for i in range(len(data['query'])):
+            tokens = word_tokenize(data['query'][i])
+            tags = pos_tag(tokens)
+            stems = [self.lemmatizer.lemmatize(i) for i in tokens]
+            x = self.encode(tags, stems)
+            y = ['O']*len(x)
+            for key in data['entity'][i].keys():
+                if str(type(data['entity'][i][key]))=="<class 'int'>":
+                    y[data['entity'][i][key]] = key
+                elif not data['entity'][i][key]:
+                    continue
+                else:
+                    for j in data['entity'][i][key]:
+                        if y[j] != "O":
+                            raise EntityOverwriteError("The word {} is already assigned an entity. Entity overwriting is not allowed. Please create the intent afresh".format(tags[0][j]))
+                        y[j] = key
+            train_X.append(x)
+            train_y.append(y)
+
+        self.labels = list(self.get_labels(train_y))
+
+        return train_X, train_y
+
     def name(self):
         return 'crf_loader'
 
@@ -73,31 +103,3 @@ class CRFLoader(BaseLoader):
             train_X.append(x)
 
         return train_X
-
-    def data(self, intent_name, **kwargs):
-        train_X = []
-        train_y = []
-        intent_folder='../intents'
-        filepath = intent_folder+'/'+intent_name+'/intent.tarjani'
-        with open(filepath, 'r') as f:
-            data = json.load(f)
-        for i in range(len(data['query'])):
-            tokens = word_tokenize(data['query'][i])
-            tags = pos_tag(tokens)
-            stems = [self.lemmatizer.lemmatize(i) for i in tokens]
-            x = self.encode(tags, stems)
-            y = ['O']*len(x)
-            for key in data['entity'][i].keys():
-                if str(type(data['entity'][i][key]))=="<class 'int'>":
-                    y[data['entity'][i][key]] = key
-                elif not data['entity'][i][key]:
-                    continue
-                else:
-                    for j in data['entity'][i][key]:
-                        if y[j] != "O":
-                            raise EntityOverwriteError("The word {} is already assigned an entity. Entity overwriting is not allowed. Please create the intent afresh".format(tags[0][j]))
-                        y[j] = key
-            train_X.append(x)
-            train_y.append(y)
-
-        return train_X, train_y

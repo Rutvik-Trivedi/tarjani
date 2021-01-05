@@ -3,3 +3,4 @@ test.*
 t.py
 model/ner.tarjani
 *.txt
+model/nlu/*

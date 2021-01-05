@@ -10,9 +10,8 @@ class KerasTokenizer(BaseTokenizer):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.Tokenizer()
-        self.max_length = None
         self.requires_save = True
+
 
     def name(self):
         return 'keras_tokenizer'

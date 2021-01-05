@@ -13,7 +13,6 @@ class LSTMClassifier(BaseClassifier):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.classifier_input_dim = kwargs.get('featurizer_output_dim')
         self.requires_save = True
 
 
