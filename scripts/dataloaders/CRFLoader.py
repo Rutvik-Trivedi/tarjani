@@ -83,23 +83,30 @@ class CRFLoader(BaseLoader):
                 x['next-pos'] = tags[i+1][1]
                 x['next-lemma'] = stems[i+1]
                 x['next-shape'] = self.findshape(tags[i+1][0])
-                #x['next-word'] = tags[i+1][0]
+                x['next-word'] = tags[i+1][0]
             if i<l-2:
                 x['next-next-pos'] = tags[i+2][1]
                 x['next-next-lemma'] = stems[i+2]
                 x['next-next-shape'] = self.findshape(tags[i+2][0])
-                #x['next-next-word'] = tags[i+2][0]
+                x['next-next-word'] = tags[i+2][0]
             if i>0:
                 x['prev-pos'] = tags[i-1][1]
                 x['prev-lemma'] = stems[i-1]
                 x['prev-shape'] = self.findshape(tags[i-1][0])
-                #x['prev-word'] = tags[i-1][0]
+                x['prev-word'] = tags[i-1][0]
             if i>1:
                 x['prev-prev-pos'] = tags[i-2][1]
                 x['prev-prevplemma'] = stems[i-2]
                 x['prev-prev-shape'] = self.findshape(tags[i-2][0])
-                #x['prev-prev-word'] = tags[i-2][0]
+                x['prev-prev-word'] = tags[i-2][0]
 
             train_X.append(x)
 
         return train_X
+
+    def prepare_query(self, sentence):
+        tokens = word_tokenize(sentence)
+        tags = pos_tag(tokens)
+        stems = [self.lemmatizer.lemmatize(i) for i in tokens]
+        x = self.encode(tags, stems)
+        return [x]

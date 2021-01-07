@@ -135,17 +135,14 @@ At present, only two models are available for download, but more models are comi
 \
 Copy this model file in the scripts folder and run the import model script by running the following commands:
 ```bash
-sudo chmod +x train_after_import.py
-source import_model.sh [model_name_without_extension]
-## OR
-source import_model.sh [model_name_without_extension] [model to train TARJANI on]
-# Example: source import_model.sh example cnn
+python3 import_model.py --name [model_name_without_extension] --model [model_name]
+## Default model name is 'lstm'
 ```
 Here, after the script executes, in the intents folder, you will find the new intents of the imported model. Here, in these intents, there will be a pre-implemented skill.py file wherever applicable. You may refer to this file format for developing new skills. Clearer documentation will be updated soon after the sufficient development of teh project.
 #### 3) Exporting your model:
 You can also export your model to publish it or for your personal use. For this, create you model by creating your requirement-specific skills and run the following commands to export it:
 ```bash
-./export_model.sh [name_for_your_model]
+python3 export_model.py --name [name_for_your_model]
 ```
 Contributions are welcome to create and publish new models and help improve TARJANI
 #### 4) Deleting an Intent:

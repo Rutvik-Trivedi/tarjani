@@ -10,6 +10,7 @@ import warnings
 warnings.filterwarnings('ignore')
 import pickle
 import shutil
+import tarfile
 
 import yaml
 
@@ -24,6 +25,11 @@ from utils import *
 
 from lookup import lookup
 
+def _extract_embeddings():
+    logging.info("Extracting the embedding file")
+    tarball = tarfile.open('../model/nlu/glove/glove.6B.50d.tar.xz')
+    tarball.extractall(path='../model/nlu/glove/')
+    tarball.close()
 
 def _check_usability():
     if not os.path.exists('../model'):
@@ -40,7 +46,8 @@ def _check_usability():
         os.mkdir('../model/nlu/classifier')
     if not os.path.exists('../model/nlu/settings'):
         os.mkdir('../model/nlu/settings')
-    assert os.path.exists('../model/nlu/glove/glove.6B.50d.txt'),"Embedding file does not exist. Please untar the glove.6B.50d.tar.xz file present in the model/nlu/glove folder to use TARJANI properly"
+    if not os.path.exists('../model/nlu/glove/glove.6B.50d.txt'):
+        _extract_embeddings()
     assert os.path.exists('../model/nlu/ner.tarjani'), "NER model file does not exist. Please visit http://tarjani.is-great.net for installation steps"
 
 
@@ -95,7 +102,7 @@ class Trainer():
             logging.info('Creating the Tokenizer and processing data')
             self.tokenizer = self.lookup[self.pipeline['tokenizer']](**self.settings['intent'])
             with SettingsUpdater(self.tokenizer, self.settings, 'intent'):
-                self.tokenizer()
+                self.tokenizer(**self.settings['intent'])
                 train_X = self.tokenizer.tokenize_and_pad(train_X)
 
         else:

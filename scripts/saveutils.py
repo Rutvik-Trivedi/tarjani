@@ -16,7 +16,7 @@ def _prepare_intent_pipeline_for_saving(pipeline):
 
 def _prepare_entity_pipeline_for_saving(pipeline):
     return {
-        'entity': pipeline[0]
+        'entity_extractor': pipeline[0]
     }
 
 def _safe_delete(path):
@@ -53,5 +53,5 @@ def save_entity_pipeline(name, intent_name, pipeline, settings, folder='../inten
             _safe_delete(folder+intent_name+'/'+name+'_'+type+'.tarjani')
             model.save(folder+intent_name+'/'+name+'_'+type+'.tarjani')
 
-    with open(folder+intent_name+'/'+name+'_'+'_settings.tarjani', 'wb') as f:
+    with open(folder+intent_name+'/'+name+'_settings.tarjani', 'wb') as f:
         pickle.dump(settings, f)

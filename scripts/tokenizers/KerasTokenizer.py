@@ -29,3 +29,9 @@ class KerasTokenizer(BaseTokenizer):
         sequences = self.tokenizer.texts_to_sequences(x)
         sequences = pad_sequences(sequences, maxlen=self.max_length, padding=padding)
         return sequences
+
+    def prepare_query(self, x, **kwargs):
+        self.tokenize(x)
+        sequences = self.tokenizer.texts_to_sequences(x)
+        sequences = pad_sequences(sequences, maxlen=kwargs.get('max_length'), padding='post')
+        return sequences

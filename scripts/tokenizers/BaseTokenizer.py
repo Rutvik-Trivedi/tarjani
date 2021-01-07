@@ -14,7 +14,7 @@ class BaseTokenizer():
     def __init__(self, **kwargs):
         self.tokenizer = None
 
-    def __call__(self):
+    def __call__(self, **kwargs):
         self.tokenizer = self.Tokenizer()
 
     def name(self):
@@ -49,3 +49,6 @@ class BaseTokenizer():
                 self.tokenizer = pickle.load(f)
         except:
             self.tokenizer = tf.keras.models.load_model(name)
+
+    def prepare_query(self, query, **kwargs):
+        raise NotImplementedError

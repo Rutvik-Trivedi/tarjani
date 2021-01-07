@@ -5,6 +5,9 @@ import tensorflow as tf
 import tensorflow_text
 import tensorflow_hub as hub
 
+import logging
+logging.basicConfig(level=logging.INFO, format="[%(levelname)s]:%(asctime)s:%(message)s")
+
 from .BaseFeaturizer import BaseFeaturizer
 
 class AlbertFeaturizer(BaseFeaturizer):
@@ -35,10 +38,14 @@ class AlbertFeaturizer(BaseFeaturizer):
             name='input_type_ids',
             dtype=tf.int32,
             )
-        albert = hub.KerasLayer(
-            kwargs.get('model_path', '../model/nlu/albert/albert_model'),
-            kwargs.get('trainable', False)
-            )
+        try:
+            albert = hub.KerasLayer(
+                kwargs.get('model_path', '../model/nlu/albert/albert_model'),
+                kwargs.get('trainable', False)
+                )
+        except hub.resolver.UnsupportedHandleError:
+            logging.error("This pipeline requires Albert Model to be downloaded. Please visit https://github.com/Rutvik-Trivedi/tarjani-model-zoo and follow the instructions in the documentation")
+            exit()
         output = albert(
             {
                 'input_word_ids': input_word_ids,

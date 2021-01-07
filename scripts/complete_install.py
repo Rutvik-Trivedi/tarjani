@@ -3,7 +3,6 @@ import logging
 import tarfile
 logging.basicConfig(level=logging.INFO, format="[%(levelname)s]:%(asctime)s:%(message)s")
 import warnings
-from warning import *
 
 
 logging.info('Completing the installation process')
@@ -15,6 +14,8 @@ logging.info("Trying to install the required dependencies using Pip. This may ta
 os.system('pip3 install -r ../requirements.txt > logs.txt')
 os.remove('logs.txt')
 
+if not os.path.exists('../intents'):
+    os.mkdir('../intents')
 if not os.path.exists('../model'):
     os.mkdir('../model')
 if not os.path.exists('../model/nlu'):

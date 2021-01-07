@@ -17,3 +17,6 @@ class SimpleLoader(BaseLoader):
         train_y = self._class_encode(train_y, fit=True)
         self._set_num_classes(train_y)
         return train_X, train_y
+
+    def prepare_query(self, sentence):
+        return [sentence]

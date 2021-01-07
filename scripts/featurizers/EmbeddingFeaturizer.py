@@ -10,7 +10,7 @@ class EmbeddingFeaturizer(BaseFeaturizer):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.vocab_size = len(kwargs.get('tokenizer').word_index)+1
+        self.vocab_size = max(len(kwargs.get('tokenizer').word_index)+1, 512)
         self.num_layers = kwargs.get('num_layers', 50)
         self.tokenizer = kwargs.get('tokenizer')
         self.embedding_matrix = self._create_embedding_matrix(

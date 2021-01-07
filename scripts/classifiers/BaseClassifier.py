@@ -13,7 +13,9 @@ class BaseClassifier():
 
     def __init__(self, **kwargs):
         self.model = None
-        self.classifier_input_dim = None
+        self.classifier_input_dim = kwargs.get(
+            'featurizer_output_dim',
+            None)
 
     def __call__(self, **kwargs):
         self.classifier_input_dim = kwargs.get('featurizer_output_dim')

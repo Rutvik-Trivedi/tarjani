@@ -15,8 +15,8 @@ class BaseClassifier():
         pass
 
     def __call__(self, **kwargs):
-        self.model = self.modelling(**kwargs)
-        self.build(self.model, **kwargs)
+        self.entity_model = self.modelling(**kwargs)
+        self.build(self.entity_model, **kwargs)
 
     def name(self):
         return 'base_classifier'
@@ -28,10 +28,10 @@ class BaseClassifier():
         pass
 
     def train(self, train_X, train_y, **kwargs):
-        return self.model.fit(train_X, train_y)
+        return self.entity_model.fit(train_X, train_y)
 
     def predict(self, X):
-        return self.model.predict(X)
+        return self.entity_model.predict(X)
 
     def _model_type(self):
         return 'nlu'
@@ -40,15 +40,15 @@ class BaseClassifier():
         return '../../model/'+self._model_type()+'/'
 
     def save(self, name):
-        if dill.pickles(self.model):
+        if dill.pickles(self.entity_model):
             with open(name, 'wb') as f:
-                pickle.dump(self.model, f)
+                pickle.dump(self.entity_model, f)
         else:
-            self.model.save(name)
+            self.entity_model.save(name)
 
     def load(self, name):
         try:
             with open(name, 'rb') as f:
-                self.model = pickle.load(f)
+                self.entity_model = pickle.load(f)
         except:
-            self.model = tf.keras.models.load_model(name)
+            self.entity_model = tf.keras.models.load_model(name)

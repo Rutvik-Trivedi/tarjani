@@ -33,6 +33,9 @@ class BaseLoader:
     def name(self):
         return 'base_loader'
 
+    def prepare_query(self, sentence):
+        raise NotImplementedError
+
     def _intent_folder(self):
         return '../intents/'
 
@@ -113,3 +116,9 @@ class BaseLoader:
 
     def _set_num_classes(self, train_y):
         self.num_classes = len(set(train_y))
+
+    def save(self, name):
+        pass
+
+    def load(self, name):
+        pass
